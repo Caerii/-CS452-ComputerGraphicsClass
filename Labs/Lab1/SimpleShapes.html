@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+            <title>2D Square</title>
+            
+            <script type="text/javascript" src="../Common/webgl-utils.js"></script>
+            <script type="text/javascript" src="../Common/initShaders.js"></script>
+            <script type="text/javascript" src="../Common/MV.js"></script>
+            <script type="text/javascript" src="SimpleShapes.js"></script>
+            
+            <script type="x-shader/x-vertex" id="vertex-shader">
+
+                attribute vec4 myPosition;
+
+                void main() {
+                    gl_Position.x = myPosition.x;
+                    gl_Position.y = myPosition.y;
+                    gl_Position.z = 0.0;
+                    gl_Position.w = 1.0;
+                    gl_PointSize = 1.0;
+                }
+
+            </script>
+
+
+            <script type="x-shader/x-fragment" id="fragment-shader-tri">
+            
+                void main() {
+                    gl_FragColor = vec4( 1.0, 1.0, 0.0, 1.0 );
+                }
+                
+            </script>
+
+            <script type="x-shader/x-fragment" id="fragment-shader-sq">
+            
+                void main() {
+                    gl_FragColor = vec4( 0.5, 0.0, 1.0, 1.0 );
+                }
+                
+            </script>
+            
+
+    <script async src='/cdn-cgi/bm/cv/669835187/api.js'></script></head>
+    
+    <body onload="init()">
+        <canvas id="gl-canvas" width="512" height="512">
+        </canvas>
+    <script type="text/javascript">(function(){window['__CF$cv$params']={r:'6d882367693b8cc5',m:'3sJj9uZUJBwmc2Ey0_FxIv2um3jpWugmxYyGf3tskLo-1644022160-0-AaGP3evo6b7z0E0d1dyA6evcyq/dIeWdsA/SqMHdYum7bwxuenDhABWr5W1DSfXAeEoOSNxLZbfMC5KvBOaav5ZjYGNFwaPIGLp+qn5dE0ZSIzaNDpMq9CiI9WSK6xweWo0x1Rpoco8xd3NdbmDzUAFDvmo9GBM0dyA9EolsZAqZ7PhIkQ0HBtOhw8Y2RsQj6R8pewxBEV0xbXv8inNoOP4=',s:[0x5c3f6aec92,0x470d86edb1],}})();</script></body>
+</html>
+

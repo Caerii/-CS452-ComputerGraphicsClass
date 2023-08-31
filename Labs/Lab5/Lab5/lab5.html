@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+            <title>Octahedron</title>
+            
+            <script type="text/javascript" src="../Common/webgl-utils.js"></script>
+            <script type="text/javascript" src="../Common/initShaders.js"></script>
+            <script type="text/javascript" src="../Common/MV.js"></script>
+            <script type="text/javascript" src="lab5.js"></script>
+            <script src="https://webglfundamentals.org/webgl/resources/m4.js"></script>
+
+
+            <script id="vertex-shader" type="x-shader/x-vertex">
+                attribute vec4 myPosition;
+                attribute vec4 myColor;
+                varying vec4 vColor;
+                uniform float alpha;
+                uniform float beta;
+                uniform float gamma;
+                uniform float tx;
+                uniform float ty;
+                uniform float sx;
+                uniform float sy;
+                uniform float sz;
+                mat4 M_x; mat4 M_y; mat4 M_z;
+                mat4 M_trans;
+                mat4 M_scale;
+
+
+                attribute vec2 a_texcoord;
+                varying vec2 v_texcoord;
+                
+                void main() {
+                    
+
+                    M_x = mat4 //rotation matrix in x
+                    (1, 0, 0, 0,
+                    0, cos(alpha), -sin(alpha), 0,
+                    0, sin(alpha), cos(alpha), 0,
+                    0, 0, 0, 1);
+
+                    M_y = mat4 //rotation matrix in y
+                    (cos(beta), 0, -sin(beta), 0,
+                    0, 1, 0, 0,
+                    sin(beta), 0, cos(beta), 0,
+                    0, 0, 0, 1);
+
+                    M_z = mat4 //rotation matrix in z
+                    (cos(gamma), sin(gamma), 0, 0,
+                    -sin(gamma), cos(gamma), 0, 0,
+                    0, 0, 1, 0,
+                    0, 0, 0, 1);
+
+                    M_trans = mat4 //translation matrix for x and y
+                    (1, 0, 0, 0,
+                     0, 1, 0, 0,
+                     0, 0, 1, 0,
+                     tx,ty, 0, 1);
+
+                    M_scale = mat4 //scale in x, y, and z
+                    (sx, 0, 0, 0,
+                     0, sy, 0, 0,
+                     0, 0, sz, 0,
+                     0, 0, 0, 1);
+
+
+                    gl_Position = M_trans * M_z * M_y * M_x * M_scale * myPosition;
+                    //vColor = myColor;
+
+                    // Interpolate the texture coordinate to the fragments
+                    v_texcoord = a_texcoord;
+                }
+                
+            </script>
+            
+            <script id="fragment-shader" type="x-shader/x-fragment">
+
+                precision mediump float;
+                //varying vec4 vColor;
+                
+                varying vec2 v_texcoord;
+                uniform sampler2D u_texture;
+
+                void main() {
+                    //gl_FragColor = vColor;
+                    vec4 color0 = texture2D(u_texture, v_texcoord);
+                    gl_FragColor.r = color0.r;
+                    gl_FragColor.g = color0.g;
+                    gl_FragColor.b = color0.b;
+                    gl_FragColor.a = 1.0;
+                }
+                
+            </script>
+            
+
+            
+    </head>
+    
+    <body onload = "initGL()" onkeydown="checkKey(event)">
+        <canvas id="gl-canvas" width="512" height="512"></canvas><br/>
+        <div> <h1>Instructions</h1> </div>
+        <div> Rotate (Left Arrow Key)       | X: CW:a, CCW:d | Y: CCW:s, CW:w | Z: CW:q, CCW:e </div>
+        <div> Scale (Up Arrow Key)          | X: Shrink:a, Grow:d | Y: Shrink:s, Grow:w </div>
+        <div> Translation (Right Arrow Key) | X: Left:a, Right:d | Y: Down:s, Up:w </div>
+        <div> Press Spacebar for Spinning Animation! </div>
+    </body>
+</html>
+
+

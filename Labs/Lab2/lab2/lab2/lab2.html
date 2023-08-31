@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+            <title>2D Shapes</title>
+            <script type="text/javascript" src="../Common/webgl-utils.js"></script>
+            <script type="text/javascript" src="../Common/initShaders.js"></script>
+            <script type="text/javascript" src="../Common/MV.js"></script>
+            <script type="text/javascript" src="lab2.js"></script>
+            
+            <script type="x-shader/x-vertex" id="vertex-shader-square">
+                attribute vec4 myPosition;
+                uniform float theta;
+                uniform vec2 mouseCoordinates;
+                uniform mat2 M; //you can specify transformations in the javascript file, and send it to html
+
+                void main() {
+                    
+                    float xi, yi, xf, yf;
+                    float wi = 1.0;
+
+                    vec2 vi = vec2( xi, yi); //vectors created
+                    vec2 vf;
+
+                    //vec3 vi = vec3( xi, yi, wi);
+                    //vec3 vf = vec3( 0.0, 0.0, 0.0);
+                    
+
+                    mat2 M; //This is a 2 dimensional matrix
+
+                    M = mat2( cos(theta), -sin(theta), cos(theta), sin(theta) ); //this is a constructor for our vector types, be careful about columns, it goes from the start of each colum!
+
+                    vf = M * vi; // M is a matrix, GLSL has built in operations for matrix vector math
+
+                    //float xf = vf.x;
+                    //float yf = vf.y;
+
+                    xi = myPosition.x;
+                    yi = myPosition.y;
+
+                    xf = xi * cos( theta ) + yi * sin( theta ) - mouseCoordinates.x; //final x position
+                    yf = -xi * sin( theta ) + yi * cos( theta) + mouseCoordinates.y; //final y position
+
+                    gl_Position.x = xf;
+                    gl_Position.y = yf;
+                    gl_Position.z = .0;
+                    gl_Position.w = 1.0;
+
+                    //gl_Position = myPosition;
+                    gl_PointSize = 1.0;
+                }
+                </script>
+            
+            <script type="x-shader/x-fragment" id="fragment-shader-square">
+                void main() {
+                    gl_FragColor = vec4( .5, .2, .3, 1.0 );
+                }
+            </script>
+    </head>
+    
+    <body onload="init()" onkeydown="moveSquareKeys(event)">
+        <canvas width="512" height="512" id="gl-canvas" onclick="moveSquare(event)">
+        </canvas>
+        <div class="btn-group">
+            <button id="stopStartButton" onclick="stopStart()">
+                StopStartRotation
+            </button>
+            <button id="stopStartButton" onclick="decreaseSpeed()">
+                DecreaseSpeed
+            </button>
+            <button id="stopStartButton" onclick="increaseSpeed()">
+                IncreaseSpeed
+            </button>
+        </div>
+    </body>
+</html>
+

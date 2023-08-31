@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html>
+<head>
+
+<script id="vertex-shader" type="x-shader/x-vertex">
+
+    precision mediump float;
+    attribute vec4 vertexPosition;
+    attribute vec3 vertexNormal;
+    
+    uniform mat4 modelview;
+    uniform mat4 Minvt;
+    uniform mat4 P_orth;
+    uniform mat4 P_persp;
+    uniform float RotM;
+    
+    uniform float orthIsOn;
+    
+    uniform vec3 ka, kd, ks;
+    uniform vec3 p0;
+    
+    uniform vec3 p1;
+    
+    uniform vec3 Ia, Id, Is;
+    uniform vec3 Ia1, Id1, Is1;
+
+    uniform float light1F;
+    uniform float light2F;
+    uniform float togS;
+
+    // Varying vectors for attenuated components of light,
+    // and for incident ray (i), viewing ray (v), and normal (n)
+
+    varying vec3 Iapp0, Idpp0, Ispp0;
+    varying vec3 Iapp1, Idpp1, Ispp1; //second light
+    varying vec3 i, v, n;
+    varying vec3 i1, v1, n1;
+
+    varying vec3 nvTransf_2;
+    
+    void main() {
+        gl_PointSize = 1.0;
+
+        mat4 MR = mat4 // Rotation matrix for light circling
+        (cos(RotM), 0, -sin(RotM), 0,
+        0, 1, 0, 0,
+        sin(RotM), 0, cos(RotM), 0,
+        0, 0, 0, 1);
+
+        // Part 3.2: calculations in main function ---
+        
+        // Transform the vertex by the modelview matrix for future lighting calculations
+
+        vec4 vpTransf4 = MR*modelview * vec4( vertexPosition.x, vertexPosition.y, vertexPosition.z, 1.0);
+        vec3 vpTransf = vpTransf4.xyz;
+
+        // Transform the normal by the inverse transpose of modelview matrix
+        // for future lighting calculations
+        vec4 nvTransf4 = Minvt * vec4( vertexNormal.x, vertexNormal.y, vertexNormal.z, 1.0 );
+        vec3 nvTransf = nvTransf4.xyz;
+
+        
+        vec4 vpTransf4_2 = modelview * vec4( vertexPosition.x, vertexPosition.y, vertexPosition.z, 1.0);
+        vec3 vpTransf_2 = vpTransf4_2.xyz;
+        
+        vec4 nvTransf4_2 = Minvt * vec4( vertexNormal.x, vertexNormal.y, vertexNormal.z, 1.0 );
+        nvTransf_2 = nvTransf4_2.xyz;
+        
+        // Compute the ambient reflection for the second light source
+        float a = 0.0;
+        float b = 0.0;
+        float c = 0.0001;        
+        float distance = length( vpTransf - p0 );
+        float scalefactor = (a + b * distance + c * distance*distance);
+        Iapp0 = light1F*Ia/scalefactor;
+        Idpp0 = light1F*Id/scalefactor;
+        Ispp0 = light1F*Is/scalefactor;
+        // Set up i, v, and n
+        i = normalize( p0 - vpTransf );
+        v = normalize(vec3(0.0,0.0,0.0) - vpTransf);
+        n = nvTransf;
+
+        vec3 Ra, Rd, Rs;
+        
+
+        if (orthIsOn > 0.5) {
+            gl_Position = P_orth * modelview * vertexPosition;
+        } else {
+            gl_Position = P_persp * modelview * vertexPosition;
+        }
+
+        //gl_Position = vertexPosition; // change this line to apply the modelview and projection
+        
+    }
+
+</script>
+
+<script id="fragment-shader" type="x-shader/x-fragment">
+    precision mediump float;
+
+    uniform vec3 ka, kd, ks;
+    uniform float alpha;
+
+    varying vec3 Iapp0, Idpp0, Ispp0;
+    varying vec3 Iapp1, Idpp1, Ispp1; //second light
+    varying vec3 i, v, n;
+    varying vec3 i1, v1, n1;
+
+    uniform float light1F;
+    uniform float light2F;
+    uniform float togS;
+
+    vec3 lightDirectionColor, lightDirection; 
+    float directional;
+
+    varying vec3 nvTransf_2;
+    
+    void main() {
+        vec3 v_renorm = normalize(v);
+        vec3 n_renorm = normalize(n);
+        vec3 i_renorm = normalize(i);
+
+        vec3 Ra, Rd, Rs;
+
+        // Ambient reflection
+        Ra.r = ka.r * Iapp0.r;
+        Ra.g = ka.g * Iapp0.g;
+        Ra.b = ka.b * Iapp0.b;        
+        
+        // Diffuse reflection
+        // costheta will contain dot product between incident
+        // direction and transformed normal
+        float costheta = dot( i_renorm, n_renorm );
+
+        Rd.r = kd.r * Idpp0.r * max(costheta,0.0);
+        Rd.g = kd.g * Idpp0.g * max(costheta,0.0);
+        Rd.b = kd.b * Idpp0.b * max(costheta,0.0); 
+        
+        // Specular reflection
+        Rs = vec3( 0.0, 0.0, 0.0 );
+        vec3 r = 2.0 * costheta * n_renorm - i_renorm;
+        float rdotv = dot(r,v_renorm);
+        float shine = max( pow( rdotv,alpha ), 0.0 );
+        if ( costheta > 0.0 ) {
+            Rs.r = togS * ks.r * Ispp0.r * shine;
+            Rs.g = togS * ks.g * Ispp0.g * shine;
+            Rs.b = togS * ks.b * Ispp0.b * shine;               
+        }
+
+        //Parameters for second light
+
+        lightDirectionColor = vec3(0.3,0.1,0.8);
+        lightDirection = normalize(vec3(0.3,0.1,0.8));
+
+        float directional = light2F * max(dot(nvTransf_2,lightDirection),0.0);
+
+        // Add all the ambient, diffuse, and specular reflections from all the light sources together
+        vec3 R = clamp((Ra+Rd+Rs) + (lightDirectionColor * directional),0.0,1.0);
+
+        gl_FragColor = vec4( R.r, R.g, R.b, 1.0 );
+    }
+
+</script>
+
+<script type="text/javascript" src="../Common/webgl-utils.js"></script>
+<script type="text/javascript" src="../Common/initShaders.js"></script>
+<script type="text/javascript" src="../Common/MV.js"></script>
+<script type="text/javascript" src="lab4.js"></script>
+<script type="text/javascript" src="object.js"></script>
+</head>
+
+<body onload = "initGL()">
+    <canvas id="gl-canvas" height="512" width="512">
+    </canvas>
+    <button id="orthButton" onclick="showOrthographic()">Orthographic</button>
+    <button id="perspButton" onclick="showPerspective()">Perspective</button>
+    <button id="MoveButton" onclick="moveShape()">Rotate the Light!</button>
+    <button id="Light1Button" onclick="toggleLight1()">Toggle Point Light!</button>
+    <button id="Light2Button" onclick="toggleLight2()">Toggle Directional Light!</button>
+    <button id="Light1SpecButton" onclick="toggleSpecular()">Toggle Specularity!</button>
+    
+</body>
+</html>

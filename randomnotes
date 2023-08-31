@@ -1,0 +1,75 @@
+attribute vec4 myPosition;
+
+uniform vec2 scaleValue;
+
+
+void main() {
+	gl_Position[0] = scaleValue.x * myPosition.x;
+	gl_Position[1] = scaleValue.y * myPosition.y;
+	gl_Position[2] = 0.0;
+	gl_Position[3] = 1.0;
+	gl_PointSize = 1.0;
+
+
+
+	//above is in vertex shader
+
+
+
+	//below is in fragment shader
+
+	uniform vec4 myColor;
+	void main() {
+		gl_FragColor = myColor;l
+	}
+
+
+	//levels of precision for floating point operations
+	//precision highp float;
+	precision mediump float; //best to have
+	//precision lowp float;
+
+	/*
+	if ( gl_FragCoord.x >= 0.0 && gl_FragCoord.x <= 256.0 && gl_FragCord.y >= 0.0 && gl_FragCoord.y <= 256.0) {
+		gl_FragColor = vec4( 0.5, 0.0, 1.0, 1.0); //square
+	} else if ( gl_FragCoord.x >= 256.0 && gl_FragCoord.x < 512.0 && gl_FragCoord.y >= 256.0 && gl_FragCoord.y < 512.0) {
+		gl_FragColor = vec4( 1.0, 1.0, 0.0, 1.0 ); //triangle
+	}
+	*/
+
+	uniform vec4 myColor;
+	uniform vec2 scaleValue1;
+
+	gl_FragColor.r = scaleValue1.x * myColor.r;
+	gl_FragColor.g = scaleValue1.y * myColor.g;
+	gl_FragColor.b = myColor.b;
+	gl_FragColor.a = myColor.a;
+
+
+
+}
+
+// for debugging use console.log("hello there friends")
+
+// we do not want independent buffers and shaders for our shapes
+
+function drawShapes() {
+	var arrayOfPoints = [];
+
+	var bufferId = gl.createBuffer();
+
+	var myPositionHandle;
+
+}
+
+init() {
+	var myColorUniformHandle = gl.getUniformLocation( myShaderProgram, "myColor" );
+	gl.uniform4f( myColorUniformHandle, 0.0, 1.0, 0.0, 1.0 );
+
+	var scaleValueUniformHandle = gl.getUniformLocation( myShaderProgram, "scaleValue");
+	gl.uniform2f( scaleValue, 0.3, 0.4);
+
+	gl.drawArrays(gl.TRIANGLE_FAN, 0, 4);
+
+
+}

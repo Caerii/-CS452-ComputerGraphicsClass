@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html;charset=utf-8" >
+            <title>2D Triangle</title>
+            
+            <script type="text/javascript" src="../Common/webgl-utils.js"></script>
+            <script type="text/javascript" src="../Common/initShaders.js"></script>
+            <script type="text/javascript" src="../Common/MV.js"></script>
+            <script type="text/javascript" src="SimpleTriangle.js"></script>
+        
+            <script type="x-shader/x-vertex" id="vertex-shader">
+                attribute vec4 myPosition;
+                attribute vec4 ScaleValue;
+                attribute vec4 myColor;
+
+                varying vec4 interpColor; 
+
+                void main() {
+
+                    float bar2 = 0.3
+
+                    interpColor = myColor;
+                    interpColor.r = myColor.r * bar2;
+
+                    interpColor.a = 1.0;
+
+                    gl_Position.x = myPosition.x * scaleValue.x;
+                    gl_Position.y = myPosition.y * scaleValue.y;
+                    gl_Position.z = myPosition.z * scaleValue.z;
+                    gl_Position.w = myPosition.w * scaleValue.w;
+                    gl_PointSize = 1.0;
+                }
+            </script>
+
+            <script type="x-shader/x-fragment" id="fragment-shader">
+                precision mediump float;
+                varying vec4 interpColor;
+
+                void main() {
+                    gl_FragColor = interpColor;
+                }
+            
+            </script>
+            
+    <script async src='/cdn-cgi/bm/cv/669835187/api.js'></script></head>
+    
+    <body onload="drawTriangle()">
+        <canvas id="gl-canvas" width="512" height="512">
+        </canvas>
+    <script type="text/javascript">(function(){window['__CF$cv$params']={r:'6da8d7deacd41a40',m:'Lx6FTkbhBBvdDx.9ImcIB7WPqeO4r61fjIuho3OKdkY-1644365096-0-AU8b4QbAdMKy0P5nlWvz8oVGz6uYcLb72eWQG2pyFkjVtlNBaj0WowuS84Xs4H5753VNV/TJubfB8DUwY1BGXHKx4kukkr1xG8l+hwF2N6n1l7sve+pGZtqi5f48UxQ9+m5U2GMx/kGHhVr/U8NiPhocCrd1RmPGLZZ0eXOyWl1OXJxXQpHYb2hIMj1OsW/CwEcTq9pjfJPA2t/xLcMXdeM=',s:[0xfb1dc883e8,0xdf3ca89a8a],}})();</script></body>
+</html>
+
